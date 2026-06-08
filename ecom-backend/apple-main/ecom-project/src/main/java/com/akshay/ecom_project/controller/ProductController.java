@@ -2,11 +2,11 @@ package com.akshay.ecom_project.controller;
 
 import com.akshay.ecom_project.model.Product;
 import com.akshay.ecom_project.service.ProductService;
-import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,24 +21,27 @@ public class ProductController {
    @Autowired
     private ProductService service;
 
-
-
    @GetMapping("/products")
     public ResponseEntity<List<Product>> getAllProducts(){
          return new ResponseEntity<>(service.getAllProducts(), HttpStatus.OK);
     }
 
+    @GetMapping("/products/search")
+    public ResponseEntity<List<Product>> searchProducts(@RequestParam String keyword) {
+        return ResponseEntity.ok(service.searchProducts(keyword));
+    }
+
     @GetMapping("/product/{id}")
     public ResponseEntity<Product> getProduct(@PathVariable int id){
-       Product product=service.getProductById(id);
+       Product product = service.getProductById(id);
        if(product != null)
-           return new ResponseEntity<>(product,HttpStatus.OK);
+           return new ResponseEntity<>(product, HttpStatus.OK);
        else
-           return new ResponseEntity<>(product,HttpStatus.NOT_FOUND);
-
-
+           return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
     }
+
    @PostMapping("/product")
+   @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<?> addProduct(@RequestPart Product product,
                                         @RequestPart MultipartFile imageFile){
        try {
@@ -47,42 +50,44 @@ public class ProductController {
        }
        catch(Exception e){
            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-
        }
     }
+
     @GetMapping("/product/{productId}/image")
     public ResponseEntity<byte[]> getImageByProductId(@PathVariable int productId){
      Product product = service.getProductById(productId);
      byte[] imageFile = product.getImageData();
-     return (ResponseEntity<byte[]>) ResponseEntity.ok()
+     return ResponseEntity.ok()
              .contentType(MediaType.valueOf(product.getImageType()))
              .body(imageFile);
     }
-    @PutMapping("/product/{id}")
 
-    public ResponseEntity<String> updateProduct(@PathVariable int id,@RequestPart Product product,
+    @PutMapping("/product/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseEntity<String> updateProduct(@PathVariable int id, @RequestPart Product product,
                                             @RequestPart MultipartFile imageFile){
-        Product product1 = null;
+        Product product1;
         try {
-            product1 = service.updateProduct(id,product,imageFile);
+            product1 = service.updateProduct(id, product, imageFile);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         if(product1 != null)
-           return new ResponseEntity<>("updated",HttpStatus.OK);
+           return new ResponseEntity<>("updated", HttpStatus.OK);
        else
-           return new ResponseEntity<>("Failed to update",HttpStatus.BAD_REQUEST);
-
+           return new ResponseEntity<>("Failed to update", HttpStatus.BAD_REQUEST);
     }
+
     @DeleteMapping("/product/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<String> deleteProduct(@PathVariable int id){
        Product product = service.getProductById(id);
        if(product != null){
            service.deleteProduct(id);
-           return new ResponseEntity<>("Deleted",HttpStatus.OK);
+           return new ResponseEntity<>("Deleted", HttpStatus.OK);
        }
        else
-           return new ResponseEntity<>("Product not found",HttpStatus.NOT_FOUND);
-
+           return new ResponseEntity<>("Product not found", HttpStatus.NOT_FOUND);
     }
 }
+

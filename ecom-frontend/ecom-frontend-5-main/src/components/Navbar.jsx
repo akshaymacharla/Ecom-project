@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import Home from "./Home"
-import axios from "axios";
-// import { json } from "react-router-dom";
+import axios from "../axios";
+import { Link, useNavigate } from "react-router-dom";
+import AppContext from "../Context/Context";
 // import { BiSunFill, BiMoon } from "react-icons/bi";
 
 const Navbar = ({ onSelectCategory, onSearch }) => {
+  const { isLoggedIn, isAdmin, user, logout } = useContext(AppContext);
+  const navigate = useNavigate();
   const getInitialTheme = () => {
     const storedTheme = localStorage.getItem("theme");
     return storedTheme ? storedTheme : "light-theme";
@@ -16,13 +19,18 @@ const Navbar = ({ onSelectCategory, onSearch }) => {
   const [noResults, setNoResults] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
   const [showSearchResults,setShowSearchResults] = useState(false)
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
   useEffect(() => {
     fetchData();
   }, []);
 
   const fetchData = async (value) => {
     try {
-      const response = await axios.get("http://localhost:8080/api/products");
+      const response = await axios.get("/products");
       setSearchResults(response.data);
       console.log(response.data);
     } catch (error) {
@@ -36,7 +44,7 @@ const Navbar = ({ onSelectCategory, onSearch }) => {
       setShowSearchResults(true)
     try {
       const response = await axios.get(
-        `http://localhost:8080/api/products/search?keyword=${value}`
+        `/products/search?keyword=${value}`
       );
       setSearchResults(response.data);
       setNoResults(response.data.length === 0);
@@ -107,8 +115,8 @@ const Navbar = ({ onSelectCategory, onSearch }) => {
       <header>
         <nav className="navbar navbar-expand-lg fixed-top">
           <div className="container-fluid">
-            <a className="navbar-brand" href="https://telusko.com/">
-              Telusko
+            <a className="navbar-brand" href="/">
+              BuyThings
             </a>
             <button
               className="navbar-toggler"
@@ -131,11 +139,20 @@ const Navbar = ({ onSelectCategory, onSearch }) => {
                     Home
                   </a>
                 </li>
-                <li className="nav-item">
-                  <a className="nav-link" href="/add_product">
-                    Add Product
-                  </a>
-                </li>
+                {isAdmin && (
+                  <li className="nav-item">
+                    <a className="nav-link" href="/add_product">
+                      Add Product
+                    </a>
+                  </li>
+                )}
+                {isAdmin && (
+                  <li className="nav-item">
+                    <a className="nav-link" href="/admin">
+                      <i className="bi bi-speedometer2 me-1"></i>Admin
+                    </a>
+                  </li>
+                )}
 
                 <li className="nav-item dropdown">
                   <a
@@ -180,7 +197,6 @@ const Navbar = ({ onSelectCategory, onSearch }) => {
                     Cart
                   </i>
                 </a>
-                {/* <form className="d-flex" role="search" onSubmit={handleSearch} id="searchForm"> */}
                 <input
                   className="form-control me-2"
                   type="search"
@@ -188,12 +204,12 @@ const Navbar = ({ onSelectCategory, onSearch }) => {
                   aria-label="Search"
                   value={input}
                   onChange={(e) => handleChange(e.target.value)}
-                  onFocus={() => setSearchFocused(true)} // Set searchFocused to true when search bar is focused
-                  onBlur={() => setSearchFocused(false)} // Set searchFocused to false when search bar loses focus
+                  onFocus={() => setSearchFocused(true)}
+                  onBlur={() => setSearchFocused(false)}
                 />
                 {showSearchResults && (
                   <ul className="list-group">
-                    {searchResults.length > 0 ? (  
+                    {searchResults.length > 0 ? (
                         searchResults.map((result) => (
                           <li key={result.id} className="list-group-item">
                             <a href={`/product/${result.id}`} className="search-result-link">
@@ -204,19 +220,40 @@ const Navbar = ({ onSelectCategory, onSearch }) => {
                     ) : (
                       noResults && (
                         <p className="no-results-message">
-                          No Prouduct with such Name
+                          No Product with such Name
                         </p>
                       )
                     )}
                   </ul>
                 )}
-                {/* <button
-                  className="btn btn-outline-success"
-                  onClick={handleSearch}
-                >
-                  Search Products
-                </button> */}
-                {/* </form> */}
+                {/* Auth buttons */}
+                {isLoggedIn ? (
+                  <div className="d-flex align-items-center ms-2 gap-2">
+                    <a href="/dashboard" className="nav-link text-dark" style={{whiteSpace:'nowrap'}}>
+                      <i className="bi bi-person-circle me-1"></i>
+                      {user?.name}
+                    </a>
+                    <button
+                      className="btn btn-sm btn-outline-danger"
+                      onClick={handleLogout}
+                      style={{whiteSpace:'nowrap'}}
+                    >
+                      <i className="bi bi-box-arrow-right me-1"></i>
+                      Logout
+                    </button>
+                  </div>
+                ) : (
+                  <div className="d-flex align-items-center ms-2 gap-2">
+                    <a href="/login" className="btn btn-sm btn-outline-primary" style={{whiteSpace:'nowrap'}}>
+                      <i className="bi bi-box-arrow-in-right me-1"></i>
+                      Login
+                    </a>
+                    <a href="/register" className="btn btn-sm btn-primary" style={{whiteSpace:'nowrap'}}>
+                      <i className="bi bi-person-plus me-1"></i>
+                      Register
+                    </a>
+                  </div>
+                )}
                 <div />
               </div>
             </div>

@@ -31,3 +31,16 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# ─── SECRETS — NEVER COMMIT THESE ───────────────
+# Local environment overrides with real credentials
+application-local.properties
+src/main/resources/application-local.properties
+*.env
+.env
+.env.*
+
+# Any file that might hold secrets
+*secret*
+*password*
+*credentials*
