@@ -68,10 +68,10 @@ const Navbar = ({ onSelectCategory, onSearch }) => {
   //       let response;
   //       if (!isNaN(value)) {
   //         // Input is a number, search by ID
-  //         response = await axios.get(`http://localhost:8080/api/products/search?id=${value}`);
+  //         response = await axios.get(`/products/search?id=${value}`);
   //       } else {
   //         // Input is not a number, search by keyword
-  //         response = await axios.get(`http://localhost:8080/api/products/search?keyword=${value}`);
+  //         response = await axios.get(`/products/search?keyword=${value}`);
   //       }
 
   //       const results = response.data;

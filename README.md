@@ -516,7 +516,7 @@ npm run dev
 | Variable | Description | Example |
 |----------|-------------|---------|
 | `VITE_RAZORPAY_KEY_ID` | Razorpay Key ID (public, safe in browser) | `rzp_test_abc123` |
-| `VITE_API_BASE_URL` | Backend API base URL | `http://localhost:8080/api` |
+| `VITE_API_BASE_URL` | Backend API base URL | `https://ecom-project-2a0j.onrender.com/api` (or `http://localhost:8080/api` for dev) |
 
 > ⚠️ **Security Note:** The Razorpay **Key Secret** must NEVER be in the frontend. It belongs only on the backend server.
 
