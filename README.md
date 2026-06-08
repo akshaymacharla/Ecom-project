@@ -158,69 +158,85 @@
 ```
 Ecom-project/
 │
-├── ecom-backend/apple-main/ecom-project/      # Spring Boot Backend
-│   ├── src/main/java/com/akshay/ecom_project/
-│   │   ├── EcomProjectApplication.java        # Main entry point
-│   │   ├── config/
-│   │   │   ├── SecurityConfig.java            # Spring Security + CORS + JWT filter chain
-│   │   │   └── JwtAuthenticationFilter.java   # JWT validation on every request
-│   │   ├── controller/
-│   │   │   ├── AuthController.java            # /api/auth/register, /login, /logout
-│   │   │   ├── ProductController.java         # /api/products, /api/product/**
-│   │   │   ├── OrderController.java           # /api/orders/**
-│   │   │   └── UserController.java            # /api/users/**, /api/user/me
-│   │   ├── model/
-│   │   │   ├── Product.java                   # Product entity (image stored as BLOB)
-│   │   │   ├── User.java                      # User entity (ROLE_ADMIN | ROLE_USER)
-│   │   │   ├── Order.java                     # Order entity with status enum
-│   │   │   └── OrderItem.java                 # Order line items
-│   │   ├── repo/
-│   │   │   ├── ProductRepo.java               # Keyword search JPQL query
-│   │   │   ├── UserRepo.java                  # findByEmail, existsByEmail
-│   │   │   └── OrderRepo.java                 # findByUser, findAllByOrderDate
-│   │   ├── service/
-│   │   │   ├── ProductService.java            # Product business logic
-│   │   │   ├── UserService.java               # UserDetailsService + auth logic
-│   │   │   ├── OrderService.java              # Order placement & management
-│   │   │   └── JwtService.java                # Token generation & validation
-│   │   ├── dto/
-│   │   │   ├── RegisterRequest.java           # Registration payload
-│   │   │   ├── LoginRequest.java              # Login payload
-│   │   │   ├── AuthResponse.java              # JWT + user info response
-│   │   │   └── OrderRequest.java              # Order placement payload
-│   │   └── exception/
-│   │       └── GlobalExceptionHandler.java    # Centralized error handling
+├── docker-compose.yml                          # One-command full stack startup
+│
+├── ecom-backend/apple-main/ecom-project/       # Spring Boot Backend
+│   ├── Dockerfile                              # Multi-stage build (Java 21 + Alpine JRE)
+│   ├── .dockerignore
+│   └── src/main/java/com/akshay/ecom_project/
+│       ├── EcomProjectApplication.java         # Main entry (@EnableAsync)
+│       ├── config/
+│       │   ├── SecurityConfig.java             # Spring Security + CORS + JWT filter chain
+│       │   ├── JwtAuthenticationFilter.java    # JWT validation on every request
+│       │   └── SwaggerConfig.java              # OpenAPI/Swagger configuration
+│       ├── controller/
+│       │   ├── AuthController.java             # /api/auth/**
+│       │   ├── ProductController.java          # /api/products, /api/product/**
+│       │   ├── CartController.java             # /api/cart/**
+│       │   ├── WishlistController.java         # /api/wishlist/**
+│       │   ├── ReviewController.java           # /api/reviews/**
+│       │   ├── AddressController.java          # /api/address/**
+│       │   ├── OrderController.java            # /api/orders/**
+│       │   └── UserController.java             # /api/users/**, /api/user/me
+│       ├── model/
+│       │   ├── Product.java
+│       │   ├── User.java
+│       │   ├── Order.java / OrderItem.java
+│       │   ├── Cart.java / CartItem.java
+│       │   ├── Wishlist.java
+│       │   ├── Review.java
+│       │   └── Address.java
+│       ├── repo/                               # Spring Data JPA Repositories
+│       ├── service/
+│       │   ├── ProductService.java
+│       │   ├── UserService.java
+│       │   ├── OrderService.java
+│       │   ├── CartService.java
+│       │   ├── WishlistService.java
+│       │   ├── ReviewService.java
+│       │   ├── AddressService.java
+│       │   ├── EmailService.java               # @Async email notifications
+│       │   └── JwtService.java
+│       ├── dto/                                # Request/Response DTOs
+│       └── exception/
+│           └── GlobalExceptionHandler.java
 │   └── src/main/resources/
 │       ├── application.properties             # Main config (env-var driven)
-│       └── application-local.properties       # 🔒 Git-ignored local overrides
+│       ├── application-local.properties       # 🔒 Git-ignored local overrides
+│       └── templates/                         # Thymeleaf email templates
+│           ├── welcome-email.html
+│           ├── order-confirmation.html
+│           ├── order-shipped.html
+│           └── order-delivered.html
 │
 ├── ecom-frontend/ecom-frontend-5-main/        # React + Vite Frontend
-│   ├── src/
-│   │   ├── App.jsx                            # Root component + routes
-│   │   ├── App.css                            # Global styles + dark/light theme
-│   │   ├── axios.jsx                          # Axios instance with JWT interceptors
-│   │   ├── Context/
-│   │   │   └── Context.jsx                    # Global state (auth, cart, toasts)
-│   │   └── components/
-│   │       ├── Navbar.jsx                     # Nav with search, auth links, theme toggle
-│   │       ├── Home.jsx                       # Product grid with category filter
-│   │       ├── Product.jsx                    # Product detail page
-│   │       ├── AddProduct.jsx                 # Admin: add product form
-│   │       ├── UpdateProduct.jsx              # Admin: edit product form
-│   │       ├── Cart.jsx                       # Shopping cart page
-│   │       ├── CheckoutPopup.jsx              # Order summary + Razorpay trigger
-│   │       ├── AdminDashboard.jsx             # Admin panel (stats, products, orders, users)
-│   │       ├── UserDashboard.jsx              # User home with quick links
-│   │       ├── Login.jsx                      # Glassmorphism login form
-│   │       ├── Register.jsx                   # Registration with role selector
-│   │       ├── OrderHistory.jsx               # User order history with status badges
-│   │       ├── Profile.jsx                    # User profile & name update
-│   │       ├── Toast.jsx                      # Animated notification system
-│   │       ├── ProtectedRoute.jsx             # Route guard for auth/admin
-│   │       └── AccessDenied.jsx               # 403 error page
-│   ├── .env                                   # 🔒 Git-ignored (real API keys)
-│   ├── .env.example                           # ✅ Committed (template)
-│   └── index.html                             # Root HTML (Razorpay CDN script)
+│   ├── Dockerfile                             # Multi-stage build (Node 20 + Nginx)
+│   ├── nginx.conf                             # SPA routing + /api reverse proxy
+│   ├── .dockerignore
+│   └── src/
+│       ├── App.jsx                            # Root component + routes
+│       ├── App.css                            # Global styles + dark/light theme
+│       ├── axios.jsx                          # Axios instance with JWT interceptors
+│       ├── Context/
+│       │   └── Context.jsx                    # Global state (auth, cart, wishlist, toasts)
+│       └── components/
+│           ├── Navbar.jsx                     # Nav with wishlist badge + cart count
+│           ├── Home.jsx                       # Product grid with ratings + wishlist toggle
+│           ├── Product.jsx                    # Product detail + reviews section
+│           ├── Cart.jsx                       # API-backed cart page
+│           ├── CheckoutPopup.jsx              # Address selection + Razorpay
+│           ├── Wishlist.jsx                   # Wishlist page with move-to-cart
+│           ├── ReviewSection.jsx              # Star ratings + review submission
+│           ├── AddressManager.jsx             # Full address CRUD page
+│           ├── UserDashboard.jsx              # User home with quick links
+│           ├── OrderHistory.jsx               # Order history with status badges
+│           ├── AdminDashboard.jsx             # Admin panel
+│           ├── Profile.jsx                    # User profile update
+│           ├── Login.jsx / Register.jsx
+│           ├── AddProduct.jsx / UpdateProduct.jsx
+│           ├── Toast.jsx                      # Animated notification system
+│           ├── ProtectedRoute.jsx             # Route guard for auth/admin
+│           └── AccessDenied.jsx              # 403 page
 ```
 
 ---
@@ -274,6 +290,11 @@ Ecom-project/
                     │  │    users       │  │
                     │  │    orders      │  │
                     │  │    order_items │  │
+                    │  │    cart        │  │
+                    │  │    cart_items  │  │
+                    │  │    wishlist    │  │
+                    │  │    reviews     │  │
+                    │  │    addresses   │  │
                     │  └────────────────┘  │
                     └──────────────────────┘
 ```
@@ -281,6 +302,8 @@ Ecom-project/
 ---
 
 ## 📡 API Reference
+
+> 📘 Full interactive API docs available at **http://localhost:8080/swagger-ui.html** when running locally.
 
 ### Authentication
 | Method | Endpoint | Auth | Description |
@@ -300,13 +323,47 @@ Ecom-project/
 | `PUT` | `/api/product/{id}` | Admin only | Update product |
 | `DELETE` | `/api/product/{id}` | Admin only | Delete product |
 
+### Cart
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `GET` | `/api/cart` | User | Get current user's cart |
+| `POST` | `/api/cart/add` | User | Add product to cart |
+| `PUT` | `/api/cart/update` | User | Update item quantity |
+| `DELETE` | `/api/cart/remove/{productId}` | User | Remove item from cart |
+| `DELETE` | `/api/cart/clear` | User | Clear entire cart |
+
 ### Orders
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
-| `POST` | `/api/orders` | User | Place a new order |
+| `POST` | `/api/orders` | User | Place order from cart |
 | `GET` | `/api/orders/my` | User | Get own order history |
-| `GET` | `/api/orders` | Admin only | Get all orders |
+| `GET` | `/api/orders/{id}` | User/Admin | Get specific order |
+| `GET` | `/api/orders/all` | Admin only | Get all orders |
 | `PUT` | `/api/orders/{id}/status` | Admin only | Update order status |
+
+### Wishlist
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `GET` | `/api/wishlist` | User | Get current user's wishlist |
+| `POST` | `/api/wishlist/add/{productId}` | User | Add product to wishlist |
+| `DELETE` | `/api/wishlist/remove/{productId}` | User | Remove product from wishlist |
+| `POST` | `/api/wishlist/move-to-cart/{productId}` | User | Move item from wishlist to cart |
+
+### Reviews
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `GET` | `/api/reviews/product/{productId}` | Public | Get reviews for a product |
+| `POST` | `/api/reviews` | User | Submit a review |
+| `DELETE` | `/api/reviews/{id}` | User/Admin | Delete a review |
+
+### Addresses
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `GET` | `/api/address` | User | Get all saved addresses |
+| `POST` | `/api/address` | User | Add new address |
+| `PUT` | `/api/address/{id}` | User | Update an address |
+| `DELETE` | `/api/address/{id}` | User | Delete an address |
+| `PUT` | `/api/address/default/{id}` | User | Set default address |
 
 ### Users
 | Method | Endpoint | Auth | Description |
@@ -469,14 +526,16 @@ npm run dev
 
 | Route | Access | Component |
 |-------|--------|-----------|
-| `/` | Public | `Home` — product listing |
-| `/product/:id` | Public | `Product` — product detail |
+| `/` | Public | `Home` — product listing with ratings & wishlist |
+| `/product/:id` | Public | `Product` — detail page with reviews |
 | `/login` | Public | `Login` |
 | `/register` | Public | `Register` |
 | `/cart` | Public | `Cart` |
 | `/dashboard` | User + Admin | `UserDashboard` |
 | `/orders` | User + Admin | `OrderHistory` |
 | `/profile` | User + Admin | `Profile` |
+| `/wishlist` | User + Admin | `Wishlist` |
+| `/addresses` | User + Admin | `AddressManager` |
 | `/admin` | Admin only | `AdminDashboard` |
 | `/add_product` | Admin only | `AddProduct` |
 | `/product/update/:id` | Admin only | `UpdateProduct` |
@@ -499,11 +558,12 @@ npm run dev
 BuyThings uses **Razorpay** in test mode.
 
 ### How It Works
-1. User clicks "Checkout" in cart → Order summary modal opens
-2. User clicks "Pay ₹X →" → Razorpay popup opens
-3. User completes payment with test card
-4. On success → `handler` callback fires → Cart cleared → Stock updated → Success toast shown
-5. On failure → Error toast shown
+1. User clicks "Checkout" in cart → Checkout popup opens
+2. User selects a shipping address from their saved addresses
+3. User clicks "Pay $X →" → Razorpay popup opens
+4. User completes payment with test card
+5. On success → `handler` callback fires → Order placed via `POST /api/orders` → Cart cleared server-side → Redirected to `/orders`
+6. On failure → Error toast shown
 
 ### Razorpay Test Credentials
 
