@@ -3,10 +3,11 @@ import { useContext, useEffect } from "react";
 import { useState } from "react";
 import AppContext from "../Context/Context";
 import axios from "../axios";
-import UpdateProduct from "./UpdateProduct";
+import ReviewSection from "./ReviewSection";
+
 const Product = () => {
   const { id } = useParams();
-  const { data, addToCart, removeFromCart, cart, refreshData } =
+  const { addToCart, removeFromCart, cart, refreshData, isInWishlist, addToWishlist, removeFromWishlist, isLoggedIn, isAdmin, addToast } =
     useContext(AppContext);
   const [product, setProduct] = useState(null);
   const [imageUrl, setImageUrl] = useState("");
@@ -54,9 +55,17 @@ const Product = () => {
   };
 
   const handlAddToCart = () => {
-    addToCart(product);
-    alert("Product added to cart");
+    addToCart(parseInt(id));
   };
+
+  const handleWishlistToggle = () => {
+    if (isInWishlist(parseInt(id))) {
+      removeFromWishlist(parseInt(id));
+    } else {
+      addToWishlist(parseInt(id));
+    }
+  };
+
   if (!product) {
     return (
       <h2 className="text-center" style={{ padding: "10rem" }}>
@@ -100,25 +109,47 @@ const Product = () => {
             <span style={{ fontSize: "2rem", fontWeight: "bold" }}>
               {"$" + product.price}
             </span>
-            <button
-              className={`cart-btn ${
-                !product.productAvailable ? "disabled-btn" : ""
-              }`}
-              onClick={handlAddToCart}
-              disabled={!product.productAvailable}
-              style={{
-                padding: "1rem 2rem",
-                fontSize: "1rem",
-                backgroundColor: "#007bff",
-                color: "white",
-                border: "none",
-                borderRadius: "5px",
-                cursor: "pointer",
-                marginBottom: "1rem",
-              }}
-            >
-              {product.productAvailable ? "Add to cart" : "Out of Stock"}
-            </button>
+            <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+              <button
+                className={`cart-btn ${
+                  !product.productAvailable ? "disabled-btn" : ""
+                }`}
+                onClick={handlAddToCart}
+                disabled={!product.productAvailable}
+                style={{
+                  padding: "1rem 2rem",
+                  fontSize: "1rem",
+                  backgroundColor: "#007bff",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                  marginBottom: "1rem",
+                }}
+              >
+                {product.productAvailable ? "Add to cart" : "Out of Stock"}
+              </button>
+              {/* Wishlist button */}
+              {isLoggedIn && (
+                <button
+                  onClick={handleWishlistToggle}
+                  style={{
+                    padding: "0.9rem 1.2rem",
+                    fontSize: "1.2rem",
+                    background: "none",
+                    border: "2px solid #dc3545",
+                    borderRadius: "5px",
+                    cursor: "pointer",
+                    marginBottom: "1rem",
+                    color: isInWishlist(parseInt(id)) ? "#dc3545" : "#999",
+                    transition: "all 0.2s",
+                  }}
+                  title={isInWishlist(parseInt(id)) ? "Remove from Wishlist" : "Add to Wishlist"}
+                >
+                  <i className={`bi ${isInWishlist(parseInt(id)) ? "bi-heart-fill" : "bi-heart"}`}></i>
+                </button>
+              )}
+            </div>
             <h6 style={{ marginBottom: "1rem" }}>
               Stock Available :{" "}
               <i style={{ color: "green", fontWeight: "bold" }}>
@@ -127,41 +158,45 @@ const Product = () => {
             </h6>
           
           </div>
-          <div className="update-button" style={{ display: "flex", gap: "1rem" }}>
-            <button
-              className="btn btn-primary"
-              type="button"
-              onClick={handleEditClick}
-              style={{
-                padding: "1rem 2rem",
-                fontSize: "1rem",
-                backgroundColor: "#007bff",
-                color: "white",
-                border: "none",
-                borderRadius: "5px",
-                cursor: "pointer",
-              }}
-            >
-              Update
-            </button>
-            {/* <UpdateProduct product={product} onUpdate={handleUpdate} /> */}
-            <button
-              className="btn btn-primary"
-              type="button"
-              onClick={deleteProduct}
-              style={{
-                padding: "1rem 2rem",
-                fontSize: "1rem",
-                backgroundColor: "#dc3545",
-                color: "white",
-                border: "none",
-                borderRadius: "5px",
-                cursor: "pointer",
-              }}
-            >
-              Delete
-            </button>
-          </div>
+          {isAdmin && (
+            <div className="update-button" style={{ display: "flex", gap: "1rem" }}>
+              <button
+                className="btn btn-primary"
+                type="button"
+                onClick={handleEditClick}
+                style={{
+                  padding: "1rem 2rem",
+                  fontSize: "1rem",
+                  backgroundColor: "#007bff",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                }}
+              >
+                Update
+              </button>
+              <button
+                className="btn btn-primary"
+                type="button"
+                onClick={deleteProduct}
+                style={{
+                  padding: "1rem 2rem",
+                  fontSize: "1rem",
+                  backgroundColor: "#dc3545",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                }}
+              >
+                Delete
+              </button>
+            </div>
+          )}
+
+          {/* Reviews Section */}
+          <ReviewSection productId={id} />
         </div>
       </div>
     </>

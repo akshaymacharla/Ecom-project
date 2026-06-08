@@ -15,6 +15,8 @@ import Profile from "./components/Profile";
 import AccessDenied from "./components/AccessDenied";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Toast from "./components/Toast";
+import Wishlist from "./components/Wishlist";
+import AddressManager from "./components/AddressManager";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AppProvider } from "./Context/Context";
 import AppContext from "./Context/Context";
@@ -73,6 +75,22 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute>
               <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/wishlist"
+          element={
+            <ProtectedRoute>
+              <Wishlist />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/addresses"
+          element={
+            <ProtectedRoute>
+              <AddressManager />
             </ProtectedRoute>
           }
         />

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome to BuyThings</title>
+    <style>
+        body { font-family: 'Outfit', sans-serif; color: #1f2937; background-color: #f3f4f6; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #4f46e5, #7c3aed); padding: 40px 20px; text-align: center; color: #ffffff; }
+        .header h1 { margin: 0; font-size: 28px; font-weight: 700; }
+        .body { padding: 40px 30px; line-height: 1.6; }
+        .body h2 { color: #111827; margin-top: 0; }
+        .button { display: inline-block; background-color: #4f46e5; color: #ffffff !important; text-decoration: none; padding: 12px 28px; border-radius: 8px; font-weight: 600; margin-top: 20px; }
+        .footer { background-color: #f9fafb; padding: 20px; text-align: center; font-size: 14px; color: #6b7280; border-top: 1px solid #e5e7eb; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>BuyThings E-Commerce</h1>
+        </div>
+        <div class="body">
+            <h2>Welcome, <span th:text="${name}">Customer</span>!</h2>
+            <p>We are thrilled to have you join the BuyThings family. Discover a premium shopping experience tailored just for you.</p>
+            <p>Start browsing our latest products and exclusive deals today!</p>
+            <a href="http://localhost:5173" class="button">Start Shopping</a>
+        </div>
+        <div class="footer">
+            <p>&copy; 2026 BuyThings. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

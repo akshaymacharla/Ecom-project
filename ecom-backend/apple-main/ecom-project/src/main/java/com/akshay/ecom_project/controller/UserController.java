@@ -2,6 +2,8 @@ package com.akshay.ecom_project.controller;
 
 import com.akshay.ecom_project.model.User;
 import com.akshay.ecom_project.service.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,6 +17,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/users")
 @CrossOrigin
+@Tag(name = "Users", description = "Endpoints for user management (Admins) and profile management (Users)")
 public class UserController {
 
     @Autowired

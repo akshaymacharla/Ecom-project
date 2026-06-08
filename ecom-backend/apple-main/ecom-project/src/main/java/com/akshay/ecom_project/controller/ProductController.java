@@ -1,5 +1,6 @@
 package com.akshay.ecom_project.controller;
 
+import com.akshay.ecom_project.dto.ProductResponse;
 import com.akshay.ecom_project.model.Product;
 import com.akshay.ecom_project.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin
@@ -22,20 +24,26 @@ public class ProductController {
     private ProductService service;
 
    @GetMapping("/products")
-    public ResponseEntity<List<Product>> getAllProducts(){
-         return new ResponseEntity<>(service.getAllProducts(), HttpStatus.OK);
+    public ResponseEntity<List<ProductResponse>> getAllProducts(){
+         List<ProductResponse> responses = service.getAllProducts().stream()
+                 .map(service::convertToResponse)
+                 .collect(Collectors.toList());
+         return new ResponseEntity<>(responses, HttpStatus.OK);
     }
 
     @GetMapping("/products/search")
-    public ResponseEntity<List<Product>> searchProducts(@RequestParam String keyword) {
-        return ResponseEntity.ok(service.searchProducts(keyword));
+    public ResponseEntity<List<ProductResponse>> searchProducts(@RequestParam String keyword) {
+        List<ProductResponse> responses = service.searchProducts(keyword).stream()
+                .map(service::convertToResponse)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(responses);
     }
 
     @GetMapping("/product/{id}")
-    public ResponseEntity<Product> getProduct(@PathVariable int id){
+    public ResponseEntity<ProductResponse> getProduct(@PathVariable int id){
        Product product = service.getProductById(id);
        if(product != null)
-           return new ResponseEntity<>(product, HttpStatus.OK);
+           return new ResponseEntity<>(service.convertToResponse(product), HttpStatus.OK);
        else
            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
     }

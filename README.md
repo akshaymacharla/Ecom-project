@@ -122,7 +122,7 @@
 - [x] Product availability toggle
 
 ### 🛒 Cart & Checkout
-- [x] Persistent cart (saved in localStorage)
+- [x] Persistent cart (server-side API-backed, synced across devices)
 - [x] Real-time cart item quantity adjustment (bounded by stock)
 - [x] Animated "Add to Cart" toast notification
 - [x] Cart item image display
@@ -130,6 +130,17 @@
 - [x] Razorpay payment popup (test mode)
 - [x] Post-payment success/failure toast notifications
 - [x] Automatic stock deduction on successful purchase
+- [x] Email notifications via Spring `@Async` for orders and registration
+
+### ❤️ Wishlist & Engagement
+- [x] Add/remove products from a personal wishlist
+- [x] Direct move from wishlist to cart
+- [x] Product reviews and 5-star rating system
+- [x] Address manager for saving multiple shipping addresses
+
+### 🐳 Deployment & DevOps
+- [x] Full Dockerization (Dockerfiles + docker-compose)
+- [x] Nginx reverse proxy for frontend to backend routing
 
 ### 💅 UI/UX
 - [x] Dark/Light theme toggle
@@ -556,6 +567,33 @@ CREATE TABLE order_items (
   price      DECIMAL(10,2) NOT NULL,
   FOREIGN KEY (order_id)   REFERENCES orders(id),
   FOREIGN KEY (product_id) REFERENCES product(id)
+);
+
+-- Addresses table
+CREATE TABLE addresses (
+  id             BIGINT AUTO_INCREMENT PRIMARY KEY,
+  user_id        BIGINT NOT NULL,
+  full_name      VARCHAR(255) NOT NULL,
+  phone_number   VARCHAR(255) NOT NULL,
+  address_line1  VARCHAR(255) NOT NULL,
+  city           VARCHAR(255) NOT NULL,
+  state          VARCHAR(255) NOT NULL,
+  country        VARCHAR(255) NOT NULL,
+  pincode        VARCHAR(255) NOT NULL,
+  is_default     BOOLEAN NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- Reviews table
+CREATE TABLE reviews (
+  id          BIGINT AUTO_INCREMENT PRIMARY KEY,
+  product_id  INT NOT NULL,
+  reviewer_id BIGINT NOT NULL,
+  rating      INT NOT NULL,
+  comment     TEXT,
+  created_at  DATETIME(6) NOT NULL,
+  FOREIGN KEY (product_id) REFERENCES product(id),
+  FOREIGN KEY (reviewer_id) REFERENCES users(id)
 );
 ```
 

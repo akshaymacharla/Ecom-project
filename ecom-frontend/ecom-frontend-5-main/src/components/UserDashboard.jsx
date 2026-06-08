@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import AppContext from "../Context/Context";
 
 const UserDashboard = () => {
-  const { user, cart, logout } = useContext(AppContext);
+  const { user, cart, wishlist, logout } = useContext(AppContext);
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -30,10 +30,20 @@ const UserDashboard = () => {
           <h3>My Cart</h3>
           <p>{cart.length} item{cart.length !== 1 ? "s" : ""} waiting</p>
         </Link>
+        <Link to="/wishlist" className="user-dash-card">
+          <div className="user-dash-icon">❤️</div>
+          <h3>My Wishlist</h3>
+          <p>{wishlist.length} item{wishlist.length !== 1 ? "s" : ""} saved</p>
+        </Link>
         <Link to="/orders" className="user-dash-card">
           <div className="user-dash-icon">📦</div>
           <h3>My Orders</h3>
           <p>Track your purchases</p>
+        </Link>
+        <Link to="/addresses" className="user-dash-card">
+          <div className="user-dash-icon">📍</div>
+          <h3>My Addresses</h3>
+          <p>Manage delivery addresses</p>
         </Link>
         <Link to="/profile" className="user-dash-card">
           <div className="user-dash-icon">👤</div>

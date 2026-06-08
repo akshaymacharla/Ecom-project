@@ -1,429 +1,150 @@
-// import React, { useContext, useState, useEffect } from "react";
-// // import axios from '../axios';
-// import AppContext from "../Context/Context";
-// import axios from "axios";
-// import CheckoutPopup from "./CheckoutPopup";
-// import { Button } from "react-bootstrap";
-// const Cart = () => {
-//   const { cart, removeFromCart } = useContext(AppContext);
-//   const [cartItems, setCartItems] = useState([]);
-//   const [totalPrice, setTotalPrice] = useState(0);
-//   const [cartImage, setCartImage] =useState([])
-//   const [showModal, setShowModal] = useState(false);
-  
-//   // useEffect(() => {
-//   //   const fetchImagesAndUpdateCart = async () => {
-//   //     console.log("Cart", cart);
-//   //     const updatedCartItems = await Promise.all(
-//   //       cart.map(async (item) => {
-//   //         console.log("ITEM",item)
-//   //         try {
-//   //           const response = await axios.get(
-//   //             `http://localhost:8080/api/product/${item.id}/image`,
-//   //             { responseType: "blob" }
-//   //           );
-//             // const imageFile = await converUrlToFile(response.data,response.data.imageName)
-//   //           setCartImage(imageFile);
-//   //           const imageUrl = URL.createObjectURL(response.data);
-//   //           return { ...item, imageUrl, available: true };
-//   //         } catch (error) {
-//   //           console.error("Error fetching image:", error);
-//   //           return { ...item, imageUrl: "placeholder-image-url", available: false };
-//   //         }
-//   //       })
-//   //     );
-//   //     const filteredCartItems = updatedCartItems.filter((item) => item.available);
-//   //     setCartItems(updatedCartItems);
-     
-//   //   };
-
-//   //   if (cart.length) {
-//   //     fetchImagesAndUpdateCart();
-//   //   }
-//   // }, [cart]);
-
-//   useEffect(() => {
-//     const fetchImagesAndUpdateCart = async () => {
-//       try {
-    
-//         const response = await axios.get("http://localhost:8080/api/products");
-//         const backendProductIds = response.data.map((product) => product.id);
-
-//         const updatedCartItems = cart.filter((item) => backendProductIds.includes(item.id));
-//         const cartItemsWithImages = await Promise.all(
-//           updatedCartItems.map(async (item) => {
-//             try {
-//               const response = await axios.get(
-//                 `http://localhost:8080/api/product/${item.id}/image`,
-//                 { responseType: "blob" }
-//               );
-//               const imageFile = await converUrlToFile(response.data, response.data.imageName);
-//               setCartImage(imageFile)
-//               const imageUrl = URL.createObjectURL(response.data);
-//               return { ...item, imageUrl };
-//             } catch (error) {
-//               console.error("Error fetching image:", error);
-//               return { ...item, imageUrl: "placeholder-image-url" };
-//             }
-//           })
-//         );
-
-//         setCartItems(cartItemsWithImages);
-//       } catch (error) {
-//         console.error("Error fetching product data:", error);
-    
-//       }
-//     };
-
-//     if (cart.length) {
-//       fetchImagesAndUpdateCart();
-//     }
-//   }, [cart]);
-  
-
-
-//   useEffect(() => {
-//     console.log("CartItems", cartItems);
-//   }, [cartItems]);
-//   const converUrlToFile = async(blobData, fileName) => {
-//     const file = new File([blobData], fileName, { type: blobData.type });
-//     return file;
-//   }
-//   useEffect(() => {
-//     const total = cartItems.reduce(
-//       (acc, item) => acc + item.price * item.quantity,
-//       0
-//     );
-//     setTotalPrice(total);
-//   }, [cartItems]);
-
- 
-//   const handleIncreaseQuantity = (itemId) => {
-//     const newCartItems = cartItems.map((item) =>
-//       item.id === itemId ? { ...item, quantity: item.quantity + 1 } : item
-//     );
-//     setCartItems(newCartItems);
-//   };
-//   const handleDecreaseQuantity = (itemId) => {
-//     const newCartItems = cartItems.map((item) =>
-//       item.id === itemId
-//         ? { ...item, quantity: Math.max(item.quantity - 1, 1) }
-//         : item
-//     );
-//     setCartItems(newCartItems);
-//   };
-
-//   const handleRemoveFromCart = (itemId) => {
-//     removeFromCart(itemId);
-//     const newCartItems = cartItems.filter((item) => item.id !== itemId);
-//     setCartItems(newCartItems);
-//   };
-
-//   const handleCheckout = async () => {
-//     try {
-//       for (const item of cartItems) {
-//         const { imageUrl, imageName, imageData, imageType, quantity, ...rest } = item;
-//         const updatedStockQuantity = item.stockQuantity - item.quantity;
-  
-//         const updatedProductData = { ...rest, stockQuantity: updatedStockQuantity };
-//         console.log("updated product data", updatedProductData)
-  
-//         const cartProduct = new FormData();
-//         cartProduct.append("imageFile", cartImage);
-//         cartProduct.append(
-//           "product",
-//           new Blob([JSON.stringify(updatedProductData)], { type: "application/json" })
-//         );
-  
-//         await axios
-//           .put(`http://localhost:8080/api/product/${item.id}`, cartProduct, {
-//             headers: {
-//               "Content-Type": "multipart/form-data",
-//             },
-//           })
-//           .then((response) => {
-//             console.log("Product updated successfully:", (cartProduct));
-            
-//           })
-//           .catch((error) => {
-//             console.error("Error updating product:", error);
-//           });
-//       }
-//       setCartItems([]);
-//       setShowModal(false);
-//     } catch (error) {
-//       console.log("error during checkout", error);
-//     }
-//   };
-  
-//   return (
-//     <div className="cart-container">
-//       <div className="shopping-cart">
-//         <div className="title">Shopping Bag</div>
-//         {cartItems.length === 0 ? (
-//           <div className="empty" style={{ textAlign: "left", padding: "2rem" }}>
-//             <h4>Your cart is empty</h4>
-//           </div>
-//         ) : (
-//           <>
-//             {cartItems.map((item) => (
-//               <li key={item.id} className="cart-item">
-//                 <div
-//                   className="item"
-//                   style={{ display: "flex", alignContent: "center" }}
-//                   key={item.id}
-//                 >
-//                   <div className="buttons">
-//                     <div className="buttons-liked">
-//                       <i className="bi bi-heart"></i>
-//                     </div>
-//                   </div>
-//                   <div>
-//                     <img
-//                       // src={cartImage ? URL.createObjectURL(cartImage) : "Image unavailable"}
-//                       src={item.imageUrl}
-//                       alt={item.name}
-//                       className="cart-item-image"
-//                     />
-//                   </div>
-//                   <div className="description">
-//                     <span>{item.brand}</span>
-//                     <span>{item.name}</span>
-//                   </div>
-
-//                   <div className="quantity">
-//                     <button
-//                       className="plus-btn"
-//                       type="button"
-//                       name="button"
-//                       onClick={() => handleIncreaseQuantity(item.id)}
-//                     >
-//                       <i className="bi bi-plus-square-fill"></i>
-//                     </button>
-//                     <input
-//                       type="button"
-//                       name="name"
-//                       value={item.quantity}
-//                       readOnly
-//                     />
-//                     <button
-//                       className="minus-btn"
-//                       type="button"
-//                       name="button"
-//                       // style={{ backgroundColor: "white" }}
-//                       onClick={() => handleDecreaseQuantity(item.id)}
-//                     >
-//                       <i className="bi bi-dash-square-fill"></i>
-//                     </button>
-//                   </div>
-
-//                   <div className="total-price " style={{ textAlign: "center" }}>
-//                     ${item.price * item.quantity}
-//                   </div>
-//                   <button
-//                     className="remove-btn"
-//                     onClick={() => handleRemoveFromCart(item.id)}
-//                   >
-//                     <i className="bi bi-trash3-fill"></i>
-//                   </button>
-//                 </div>
-//               </li>
-//             ))}
-//             <div className="total">Total: ${totalPrice}</div>
-//             <button
-//               className="btn btn-primary"
-//               style={{ width: "100%" }}
-//               onClick={handleCheckout}
-//             >
-//               Checkout
-//             </button>
-//           </>
-//         )}
-//       </div>
-//       <CheckoutPopup
-//         show={showModal}
-//         handleClose={() => setShowModal(false)}
-//         cartItems={cartItems}
-//         totalPrice={totalPrice}
-//         handleCheckout={handleCheckout}
-//       />
-//     </div>
-
-//   );
-// };
-
-// export default Cart;
-
-
-
-
-
 import React, { useContext, useState, useEffect } from "react";
 import AppContext from "../Context/Context";
 import axios from "../axios";
 import CheckoutPopup from "./CheckoutPopup";
-import { Button } from 'react-bootstrap';
+import { Button } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 
 const Cart = () => {
-  const { cart, removeFromCart , clearCart } = useContext(AppContext);
-  const [cartItems, setCartItems] = useState([]);
+  const { cart, removeFromCart, updateCartQuantity, clearCart, fetchCart, isLoggedIn, addToast } =
+    useContext(AppContext);
+  const [cartImages, setCartImages] = useState({});
   const [totalPrice, setTotalPrice] = useState(0);
-  const [cartImage, setCartImage] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const navigate = useNavigate();
 
+  // Fetch images for cart items
   useEffect(() => {
-    const fetchImagesAndUpdateCart = async () => {
-      console.log("Cart", cart);
-      try {
-        const response = await axios.get("/products");
-        const backendProductIds = response.data.map((product) => product.id);
-
-        const updatedCartItems = cart.filter((item) => backendProductIds.includes(item.id));
-        const cartItemsWithImages = await Promise.all(
-          updatedCartItems.map(async (item) => {
-            try {
-              const response = await axios.get(
-                `/product/${item.id}/image`,
-                { responseType: "blob" }
-              );
-              const imageFile = await converUrlToFile(response.data, response.data.imageName);
-              setCartImage(imageFile)
-              const imageUrl = URL.createObjectURL(response.data);
-              return { ...item, imageUrl };
-            } catch (error) {
-              console.error("Error fetching image:", error);
-              return { ...item, imageUrl: "placeholder-image-url" };
-            }
-          })
-        );
-        console.log("cart",cart)
-        setCartItems(cartItemsWithImages);
-      } catch (error) {
-        console.error("Error fetching product data:", error);
+    const fetchImages = async () => {
+      const images = { ...cartImages };
+      for (const item of cart) {
+        if (!images[item.product.id]) {
+          try {
+            const response = await axios.get(
+              `/product/${item.product.id}/image`,
+              { responseType: "blob" }
+            );
+            images[item.product.id] = URL.createObjectURL(response.data);
+          } catch (error) {
+            images[item.product.id] = "placeholder-image-url";
+          }
+        }
       }
+      setCartImages(images);
     };
 
-    if (cart.length) {
-      fetchImagesAndUpdateCart();
+    if (cart.length > 0) {
+      fetchImages();
     }
   }, [cart]);
 
+  // Calculate total price
   useEffect(() => {
-    const total = cartItems.reduce(
-      (acc, item) => acc + item.price * item.quantity,
+    const total = cart.reduce(
+      (acc, item) => acc + item.product.price * item.quantity,
       0
     );
     setTotalPrice(total);
-  }, [cartItems]);
+  }, [cart]);
 
-  const converUrlToFile = async (blobData, fileName) => {
-    const file = new File([blobData], fileName, { type: blobData.type });
-    return file;
-  }
-
-  const handleIncreaseQuantity = (itemId) => {
-    const newCartItems = cartItems.map((item) => {
-      if (item.id === itemId) {
-        if (item.quantity < item.stockQuantity) {
-          return { ...item, quantity: item.quantity + 1 };
-        } else {
-          alert("Cannot add more than available stock");
-        }
-      }
-      return item;
-    });
-    setCartItems(newCartItems);
-  };
-  
-
-  const handleDecreaseQuantity = (itemId) => {
-    const newCartItems = cartItems.map((item) =>
-      item.id === itemId
-        ? { ...item, quantity: Math.max(item.quantity - 1, 1) }
-        : item
-    );
-    setCartItems(newCartItems);
-  };
-
-  const handleRemoveFromCart = (itemId) => {
-    removeFromCart(itemId);
-    const newCartItems = cartItems.filter((item) => item.id !== itemId);
-    setCartItems(newCartItems);
-  };
-
-  const handleCheckout = async () => {
-    try {
-      for (const item of cartItems) {
-        const { imageUrl, imageName, imageData, imageType, quantity, ...rest } = item;
-        const updatedStockQuantity = item.stockQuantity - item.quantity;
-  
-        const updatedProductData = { ...rest, stockQuantity: updatedStockQuantity };
-        console.log("updated product data", updatedProductData)
-  
-        const cartProduct = new FormData();
-        cartProduct.append("imageFile", cartImage);
-        cartProduct.append(
-          "product",
-          new Blob([JSON.stringify(updatedProductData)], { type: "application/json" })
-        );
-  
-        await axios
-          .put(`/product/${item.id}`, cartProduct, {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          })
-          .then((response) => {
-            console.log("Product updated successfully:", (cartProduct));
-          })
-          .catch((error) => {
-            console.error("Error updating product:", error);
-          });
-      }
-      clearCart();
-      setCartItems([]);
-      setShowModal(false);
-    } catch (error) {
-      console.log("error during checkout", error);
+  const handleIncreaseQuantity = (item) => {
+    if (item.quantity < item.product.stockQuantity) {
+      updateCartQuantity(item.product.id, item.quantity + 1);
+    } else {
+      addToast("Cannot add more than available stock", "warning");
     }
   };
+
+  const handleDecreaseQuantity = (item) => {
+    if (item.quantity > 1) {
+      updateCartQuantity(item.product.id, item.quantity - 1);
+    }
+  };
+
+  const handleRemoveFromCart = (productId) => {
+    removeFromCart(productId);
+  };
+
+  // Build cartItems with images for CheckoutPopup compatibility
+  const cartItemsForCheckout = cart.map((item) => ({
+    id: item.product.id,
+    name: item.product.name,
+    brand: item.product.brand,
+    price: item.product.price,
+    quantity: item.quantity,
+    stockQuantity: item.product.stockQuantity,
+    imageUrl: cartImages[item.product.id] || "",
+  }));
+
+  const handleCheckout = async (shippingAddress) => {
+    try {
+      const orderRequest = {
+        items: null, // Let backend build it from the cart
+        shippingAddress: shippingAddress,
+      };
+      const response = await axios.post("/orders", orderRequest);
+      console.log("Order placed successfully:", response.data);
+      
+      await fetchCart(); // Refresh cart (should be empty now)
+      setShowModal(false);
+      navigate("/orders"); // Redirect to order history
+    } catch (error) {
+      console.error("Error during checkout:", error);
+      addToast(error.response?.data?.error || "Failed to place order", "error");
+      throw error; // Let the popup know it failed
+    }
+  };
+
+  if (!isLoggedIn) {
+    return (
+      <div className="cart-container">
+        <div className="shopping-cart">
+          <div className="title">Shopping Bag</div>
+          <div className="empty" style={{ textAlign: "center", padding: "3rem" }}>
+            <i className="bi bi-cart-x" style={{ fontSize: "3rem", color: "#999" }}></i>
+            <h4 style={{ marginTop: "1rem" }}>Please login to view your cart</h4>
+            <a href="/login" className="btn btn-primary mt-3">
+              Login
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="cart-container">
       <div className="shopping-cart">
         <div className="title">Shopping Bag</div>
-        {cartItems.length === 0 ? (
+        {cart.length === 0 ? (
           <div className="empty" style={{ textAlign: "left", padding: "2rem" }}>
             <h4>Your cart is empty</h4>
           </div>
         ) : (
           <>
-            {cartItems.map((item) => (
+            {cart.map((item) => (
               <li key={item.id} className="cart-item">
                 <div
                   className="item"
                   style={{ display: "flex", alignContent: "center" }}
-                  key={item.id}
                 >
-                 
                   <div>
                     <img
-                      src={item.imageUrl}
-                      alt={item.name}
+                      src={cartImages[item.product.id] || ""}
+                      alt={item.product.name}
                       className="cart-item-image"
                     />
                   </div>
                   <div className="description">
-                    <span>{item.brand}</span>
-                    <span>{item.name}</span>
+                    <span>{item.product.brand}</span>
+                    <span>{item.product.name}</span>
                   </div>
 
                   <div className="quantity">
                     <button
                       className="plus-btn"
                       type="button"
-                      name="button"
-                      onClick={() => handleIncreaseQuantity(item.id)}
+                      onClick={() => handleIncreaseQuantity(item)}
                     >
                       <i className="bi bi-plus-square-fill"></i>
                     </button>
@@ -436,19 +157,18 @@ const Cart = () => {
                     <button
                       className="minus-btn"
                       type="button"
-                      name="button"
-                      onClick={() => handleDecreaseQuantity(item.id)}
+                      onClick={() => handleDecreaseQuantity(item)}
                     >
                       <i className="bi bi-dash-square-fill"></i>
                     </button>
                   </div>
 
-                  <div className="total-price " style={{ textAlign: "center" }}>
-                    ${item.price * item.quantity}
+                  <div className="total-price" style={{ textAlign: "center" }}>
+                    ${item.product.price * item.quantity}
                   </div>
                   <button
                     className="remove-btn"
-                    onClick={() => handleRemoveFromCart(item.id)}
+                    onClick={() => handleRemoveFromCart(item.product.id)}
                   >
                     <i className="bi bi-trash3-fill"></i>
                   </button>
@@ -469,12 +189,11 @@ const Cart = () => {
       <CheckoutPopup
         show={showModal}
         handleClose={() => setShowModal(false)}
-        cartItems={cartItems}
+        cartItems={cartItemsForCheckout}
         totalPrice={totalPrice}
         handleCheckout={handleCheckout}
       />
     </div>
-
   );
 };
 

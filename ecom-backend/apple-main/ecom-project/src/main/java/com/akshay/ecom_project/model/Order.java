@@ -36,6 +36,9 @@ public class Order {
     @Column(nullable = false)
     private OrderStatus orderStatus = OrderStatus.PENDING;
 
+    @Column(columnDefinition = "TEXT")
+    private String shippingAddress;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<OrderItem> orderItems = new ArrayList<>();

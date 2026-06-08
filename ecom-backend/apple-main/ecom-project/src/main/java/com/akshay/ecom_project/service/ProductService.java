@@ -2,6 +2,8 @@ package com.akshay.ecom_project.service;
 
 import com.akshay.ecom_project.model.Product;
 import com.akshay.ecom_project.repo.ProductRepo;
+import com.akshay.ecom_project.dto.ProductResponse;
+import com.akshay.ecom_project.repo.ReviewRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,6 +16,36 @@ public class ProductService {
 
     @Autowired
     private ProductRepo repo;
+
+    @Autowired
+    private ReviewRepo reviewRepo;
+
+    public ProductResponse convertToResponse(Product product) {
+        if (product == null) return null;
+
+        Double avgRating = reviewRepo.getAverageRatingByProductId(product.getId());
+        if (avgRating == null) avgRating = 0.0;
+        else avgRating = Math.round(avgRating * 10.0) / 10.0;
+
+        int totalReviews = reviewRepo.countByProductId(product.getId());
+
+        ProductResponse response = new ProductResponse();
+        response.setId(product.getId());
+        response.setName(product.getName());
+        response.setDescription(product.getDescription());
+        response.setBrand(product.getBrand());
+        response.setPrice(product.getPrice());
+        response.setCategory(product.getCategory());
+        response.setReleaseDate(product.getReleaseDate());
+        response.setProductAvailable(product.isProductAvailable());
+        response.setStockQuantity(product.getStockQuantity());
+        response.setImageName(product.getImageName());
+        response.setImageType(product.getImageType());
+        response.setAverageRating(avgRating);
+        response.setTotalReviews(totalReviews);
+
+        return response;
+    }
 
     public List<Product> getAllProducts() {
 

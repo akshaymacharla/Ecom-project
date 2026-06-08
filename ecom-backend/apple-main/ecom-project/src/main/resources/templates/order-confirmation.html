@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Order Confirmation</title>
+    <style>
+        body { font-family: 'Outfit', sans-serif; color: #1f2937; background-color: #f3f4f6; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #059669, #10b981); padding: 40px 20px; text-align: center; color: #ffffff; }
+        .header h1 { margin: 0; font-size: 28px; font-weight: 700; }
+        .body { padding: 40px 30px; line-height: 1.6; }
+        .body h2 { color: #111827; margin-top: 0; }
+        .table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .table th, .table td { border-bottom: 1px solid #e5e7eb; padding: 12px 8px; text-align: left; }
+        .table th { background-color: #f9fafb; font-weight: 600; }
+        .total { font-weight: bold; font-size: 18px; color: #10b981; }
+        .footer { background-color: #f9fafb; padding: 20px; text-align: center; font-size: 14px; color: #6b7280; border-top: 1px solid #e5e7eb; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Order Confirmed!</h1>
+        </div>
+        <div class="body">
+            <h2>Hi, <span th:text="${name}">Customer</span>!</h2>
+            <p>Thank you for your order. We are processing it and will let you know when it ships.</p>
+            <p><strong>Order ID:</strong> #<span th:text="${order.id}">123</span></p>
+            <p><strong>Order Date:</strong> <span th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm')}">2026-06-08</span></p>
+            
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Qty</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="item : ${order.orderItems}">
+                        <td th:text="${item.product.name}">Product Name</td>
+                        <td th:text="${item.quantity}">1</td>
+                        <td th:text="'₹' + ${item.price}">₹0.00</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" class="total">Total Amount:</td>
+                        <td class="total" th:text="'₹' + ${order.totalAmount}">₹0.00</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="footer">
+            <p>&copy; 2026 BuyThings. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

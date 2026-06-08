@@ -48,11 +48,15 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll()
                 // H2 console
                 .requestMatchers("/h2-console/**").permitAll()
+                // Swagger paths
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html", "/swagger-resources/**", "/webjars/**").permitAll()
                 // Public product browsing (GET only)
                 .requestMatchers(HttpMethod.GET, "/api/products").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/products/search").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/product/*/image").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/product/*").permitAll()
+                // Public reviews (GET only)
+                .requestMatchers(HttpMethod.GET, "/api/reviews/product/**").permitAll()
                 // Admin-only product mutations
                 .requestMatchers(HttpMethod.POST, "/api/product").hasAuthority("ROLE_ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/product/**").hasAuthority("ROLE_ADMIN")

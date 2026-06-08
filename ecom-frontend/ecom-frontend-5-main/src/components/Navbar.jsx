@@ -6,7 +6,7 @@ import AppContext from "../Context/Context";
 // import { BiSunFill, BiMoon } from "react-icons/bi";
 
 const Navbar = ({ onSelectCategory, onSearch }) => {
-  const { isLoggedIn, isAdmin, user, logout } = useContext(AppContext);
+  const { isLoggedIn, isAdmin, user, logout, cart, wishlist } = useContext(AppContext);
   const navigate = useNavigate();
   const getInitialTheme = () => {
     const storedTheme = localStorage.getItem("theme");
@@ -189,13 +189,58 @@ const Navbar = ({ onSelectCategory, onSearch }) => {
                 )}
               </button>
               <div className="d-flex align-items-center cart">
-                <a href="/cart" className="nav-link text-dark">
+                {isLoggedIn && (
+                  <a href="/wishlist" className="nav-link text-dark" style={{ position: "relative", marginRight: "10px" }}>
+                    <i className="bi bi-heart me-1" style={{ display: "flex", alignItems: "center" }}>
+                      Wishlist
+                    </i>
+                    {wishlist.length > 0 && (
+                      <span style={{
+                        position: "absolute",
+                        top: "-4px",
+                        right: "-4px",
+                        background: "#dc3545",
+                        color: "#fff",
+                        borderRadius: "50%",
+                        width: "18px",
+                        height: "18px",
+                        fontSize: "0.65rem",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontWeight: "bold",
+                      }}>
+                        {wishlist.length}
+                      </span>
+                    )}
+                  </a>
+                )}
+                <a href="/cart" className="nav-link text-dark" style={{ position: "relative" }}>
                   <i
                     className="bi bi-cart me-2"
                     style={{ display: "flex", alignItems: "center" }}
                   >
                     Cart
                   </i>
+                  {cart.length > 0 && (
+                    <span style={{
+                      position: "absolute",
+                      top: "-4px",
+                      right: "2px",
+                      background: "#6366f1",
+                      color: "#fff",
+                      borderRadius: "50%",
+                      width: "18px",
+                      height: "18px",
+                      fontSize: "0.65rem",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontWeight: "bold",
+                    }}>
+                      {cart.length}
+                    </span>
+                  )}
                 </a>
                 <input
                   className="form-control me-2"

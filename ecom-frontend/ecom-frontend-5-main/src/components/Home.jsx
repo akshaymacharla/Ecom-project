@@ -2,10 +2,11 @@ import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "../axios";
 import AppContext from "../Context/Context";
+import { StarRating } from "./ReviewSection";
 import unplugged from "../assets/unplugged.png"
 
 const Home = ({ selectedCategory }) => {
-  const { data, isError, addToCart, refreshData } = useContext(AppContext);
+  const { data, isError, addToCart, refreshData, isInWishlist, addToWishlist, removeFromWishlist, isLoggedIn } = useContext(AppContext);
   const [products, setProducts] = useState([]);
   const [isDataFetched, setIsDataFetched] = useState(false);
 
@@ -49,6 +50,16 @@ const Home = ({ selectedCategory }) => {
     ? products.filter((product) => product.category === selectedCategory)
     : products;
 
+  const handleWishlistToggle = (e, productId) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isInWishlist(productId)) {
+      removeFromWishlist(productId);
+    } else {
+      addToWishlist(productId);
+    }
+  };
+
   if (isError) {
     return (
       <h2 className="text-center" style={{ padding: "18rem" }}>
@@ -81,20 +92,14 @@ const Home = ({ selectedCategory }) => {
           </h2>
         ) : (
           filteredProducts.map((product) => {
-            const { id, brand, name, price, productAvailable, imageUrl } =
+            const { id, brand, name, price, productAvailable, imageUrl, averageRating, totalReviews } =
               product;
-            const cardStyle = {
-              width: "18rem",
-              height: "12rem",
-              boxShadow: "rgba(0, 0, 0, 0.24) 0px 2px 3px",
-              backgroundColor: productAvailable ? "#fff" : "#ccc",
-            };
             return (
               <div
                 className="card mb-3"
                 style={{
                   width: "250px",
-                  height: "360px",
+                  height: "400px",
                   boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
                   borderRadius: "10px",
                   overflow: "hidden", 
@@ -102,10 +107,42 @@ const Home = ({ selectedCategory }) => {
                   display: "flex",
                   flexDirection: "column",
                   justifyContent:'flex-start',
-                  alignItems:'stretch'
+                  alignItems:'stretch',
+                  position: "relative",
                 }}
                 key={id}
               >
+                {/* Wishlist Heart */}
+                {isLoggedIn && (
+                  <button
+                    onClick={(e) => handleWishlistToggle(e, id)}
+                    style={{
+                      position: "absolute",
+                      top: "10px",
+                      right: "10px",
+                      background: "rgba(255,255,255,0.9)",
+                      border: "none",
+                      borderRadius: "50%",
+                      width: "32px",
+                      height: "32px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: "pointer",
+                      zIndex: 10,
+                      boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
+                      transition: "transform 0.2s",
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.15)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+                  >
+                    <i
+                      className={`bi ${isInWishlist(id) ? "bi-heart-fill" : "bi-heart"}`}
+                      style={{ color: isInWishlist(id) ? "#dc3545" : "#666", fontSize: "0.9rem" }}
+                    ></i>
+                  </button>
+                )}
+
                 <Link
                   to={`/product/${id}`}
                   style={{ textDecoration: "none", color: "inherit" }}
@@ -135,7 +172,7 @@ const Home = ({ selectedCategory }) => {
                     <div>
                       <h5
                         className="card-title"
-                        style={{ margin: "0 0 10px 0", fontSize: "1.2rem" }}
+                        style={{ margin: "0 0 5px 0", fontSize: "1.2rem" }}
                       >
                         {name.toUpperCase()}
                       </h5>
@@ -145,14 +182,23 @@ const Home = ({ selectedCategory }) => {
                       >
                         {"~ " + brand}
                       </i>
+                      {/* Rating display */}
+                      {totalReviews > 0 && (
+                        <div style={{ margin: "6px 0", display: "flex", alignItems: "center", gap: "6px" }}>
+                          <StarRating rating={Math.round(averageRating || 0)} size="0.85rem" />
+                          <span style={{ fontSize: "0.75rem", color: "#888" }}>
+                            ({totalReviews})
+                          </span>
+                        </div>
+                      )}
                     </div>
-                    <hr className="hr-line" style={{ margin: "10px 0" }} />
+                    <hr className="hr-line" style={{ margin: "8px 0" }} />
                     <div className="home-cart-price">
                       <h5
                         className="card-text"
                         style={{ fontWeight: "600", fontSize: "1.1rem",marginBottom:'5px' }}
                       >
-                        <i class="bi bi-currency-rupee"></i>
+                        <i className="bi bi-currency-rupee"></i>
                         {price}
                       </h5>
                     </div>
@@ -161,7 +207,7 @@ const Home = ({ selectedCategory }) => {
                       style={{margin:'10px 25px 0px '  }}
                       onClick={(e) => {
                         e.preventDefault();
-                        addToCart(product);
+                        addToCart(product.id);
                       }}
                       disabled={!productAvailable}
                     >

@@ -5,6 +5,10 @@ import com.akshay.ecom_project.dto.LoginRequest;
 import com.akshay.ecom_project.dto.RegisterRequest;
 import com.akshay.ecom_project.model.User;
 import com.akshay.ecom_project.repo.UserRepo;
+import com.akshay.ecom_project.model.Cart;
+import com.akshay.ecom_project.model.Wishlist;
+import com.akshay.ecom_project.repo.CartRepo;
+import com.akshay.ecom_project.repo.WishlistRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,6 +35,15 @@ public class UserService implements UserDetailsService {
 
     @Autowired
     private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private CartRepo cartRepo;
+
+    @Autowired
+    private WishlistRepo wishlistRepo;
+
+    @Autowired
+    private EmailService emailService;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -62,7 +75,19 @@ public class UserService implements UserDetailsService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(role);
         user.setEnabled(true);
-        userRepo.save(user);
+        user = userRepo.save(user);
+
+        // Auto-create Cart and Wishlist
+        Cart cart = new Cart();
+        cart.setUser(user);
+        cartRepo.save(cart);
+
+        Wishlist wishlist = new Wishlist();
+        wishlist.setUser(user);
+        wishlistRepo.save(wishlist);
+
+        // Send welcome email
+        emailService.sendWelcomeEmail(user);
 
         UserDetails userDetails = loadUserByUsername(user.getEmail());
         String token = jwtService.generateToken(userDetails);
