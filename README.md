@@ -305,9 +305,11 @@ Ecom-project/
 
 > 📘 Full interactive API docs available at **http://localhost:8080/swagger-ui.html** when running locally.
 
-### Authentication
+### System Health & Authentication
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
+| `GET` | `/` | Public | Root endpoint to check if backend is running |
+| `GET` | `/health` | Public | Standard health check endpoint |
 | `POST` | `/api/auth/register` | Public | Register new user |
 | `POST` | `/api/auth/login` | Public | Login and get JWT token |
 | `POST` | `/api/auth/logout` | Any | Logout (client-side token clear) |
